@@ -1,0 +1,123 @@
+<template>
+  <div class="filter-description">
+    <div><span>Gestiona los contactos de tus campañas. Puedes ver, editar información y realizar acciones individuales como llamadas. </span>
+      <a-typography-link href="https://antdv.com" target="_blank">
+        Click aquí
+      </a-typography-link>
+      <span> para conocer más.</span></div>
+    <div><span>Contactos encontrados: {{ pagination.total }}</span></div>
+  </div>
+  <div class="filter">
+    <a-input v-model:value="filtersBasic.search" placeholder="Buscar contacto">
+      <template #prefix>
+        <SearchOutlined />
+      </template>
+    </a-input>
+    <a-select
+      v-model:value="filtersBasic.entity"
+      :options="optionsEntities"
+      @change="handleChangeEntity"
+    >
+    </a-select>
+    <a-select
+      v-model:value="filtersBasic.portfolio"
+      :disabled="!filtersBasic.entity"
+      :options="optionsCampaigns"
+    >
+    </a-select>
+    <a-select
+      v-model:value="filtersBasic.status"
+      :options="optionsStatus"
+    >
+    </a-select>
+    <a-button @click="handleShowFilter">
+      <FilterOutlined /> Filtros Avanzados
+    </a-button>
+  </div>
+  <FilterDrawerContact v-model:open="showFilterDrawerContacts" />
+</template>
+
+<script lang="ts" setup>
+import { computed, watch, ref, inject, Ref } from 'vue';
+import { SearchOutlined, FilterOutlined} from '@ant-design/icons-vue';
+import { useStore } from 'vuex';
+import { Contact } from '@/interfaces/contact';
+import { Select } from '@/interfaces/general';
+import FilterDrawerContact from './FilterDrawerContact.vue';
+
+const store = useStore();
+
+const showFilterDrawerContacts = ref(false);
+const pagination = computed(() => store.getters.getPagination );
+const filtersBasic = computed(() => store.getters.getFiltersBasic);
+
+const optionsEntities = ref<Select[]>([]);
+const optionsCampaigns = ref<Select[]>([]);
+const optionsStatus = ref<Select[]>([
+  { value: null, label: 'Activos e Inactivos' },
+  { value: true, label: 'Activos' },
+  { value: false, label: 'Inactivos' }
+]);
+
+const getEntities = (contacts: Contact[]) => {
+  let options: string[] = [];
+  options = [
+    ...new Set(contacts.map((el: Contact) => el.entity_name ))
+  ];
+  optionsEntities.value = [
+    { value: null, label: 'Todas las empresas' },
+    ...options.map((el) => ({ value: el, label: el }))
+  ];
+}
+
+const handleChangeEntity = () => {
+  const contacts: Contact[] = store.getters.getContacts;
+  // Obtiene valores unicos de campañas del listado de contactos
+  const uniqueSet = new Set<string>();
+
+  for (const item of contacts) {
+    let itemAux = { entity_name: item.entity_name, portfolio_name: item.portfolio_name, portfolio: item.portfolio };
+    if (!uniqueSet.has(JSON.stringify(itemAux))) {
+      uniqueSet.add(JSON.stringify(itemAux));
+    }
+  }
+  let options = Array.from(uniqueSet).map(itemString => JSON.parse(itemString));
+
+  // Filtro de campañas por entidad seleccionada
+  options = options.filter((el) => el.entity_name == filtersBasic.value.entity );
+  console.log(options);
+
+  // Forma array con estructura de options para el select
+  optionsCampaigns.value = [
+    { value: null, label: 'Todas las campañas' },
+    ...options.map((el) => ({ value: el.portfolio, label: el.portfolio_name }))
+  ];
+}
+
+const handleShowFilter = () => {
+  showFilterDrawerContacts.value = true;
+}
+
+watch(
+  () => (store.getters.getContacts),
+  (newValue) => {
+    getEntities(newValue);
+  }
+)
+</script>
+<style scoped>
+.filter{
+  display: flex;
+  gap: 15px;
+}
+.filter .ant-input-affix-wrapper {
+  width: 150px;
+}
+.filter .ant-select {
+  width: 200px;
+}
+.filter-description{
+  display: flex;
+  justify-content: space-between;
+}
+</style>
