@@ -1,12 +1,14 @@
-import { Contact, ContactFiltersBasic } from '@/interfaces/contact';
+import { Contact, ContactFiltersAdvance, ContactFiltersBasic } from '@/interfaces/contact';
 import { Pagination } from '@/interfaces/general';
-import { fetchContacts } from '@/services/Contact.service';
+import { fetchContacts, fetchContactsFilters } from '@/services/Contact.service';
 import { Commit, createStore } from 'vuex';
+import { message } from 'ant-design-vue';
 
 interface State {
   contacts: Contact[];
   pagination: Pagination;
-  filtersBasic: ContactFiltersBasic | null;
+  filtersBasic: ContactFiltersBasic;
+  filtersAdvance: ContactFiltersAdvance;
 }
 
 const state: State = {
@@ -19,9 +21,18 @@ const state: State = {
   },
   filtersBasic: {
     search: "",
-    entity: null,
-    portfolio: null,
-    status: null,
+    entity: '',
+    portfolio: '',
+    status: '',
+  },
+  filtersAdvance: {
+    managent: '',
+    group: [],
+    result: [],
+    dateinit: null,
+    dateend: null,
+    typeview: '',
+    users: [],
   },
 };
 
@@ -34,6 +45,9 @@ const getters = {
   },
   getFiltersBasic(state: State) {
     return state.filtersBasic;
+  },
+  getFiltersAdvance(state: State) {
+    return state.filtersAdvance;
   }
 }
 
@@ -57,14 +71,18 @@ const mutations = {
 
 const actions = {
   async fetchContacts({ commit }: { commit: Commit }, 
-    resetPagination: boolean) {
+    { resetPagination, filtersAdvance }: { resetPagination: boolean, filtersAdvance?: boolean }) {
     try {
-      const response = await fetchContacts(state.pagination);
+      let response;
+      if (state.filtersBasic?.entity)
+        response = await fetchContactsFilters(state.filtersBasic, state.filtersAdvance, state.pagination);
+      else
+        response = await fetchContacts(state.pagination);
+
       if (response.status == 200) {
         const results = response.data.results.map((el: Contact) => {
           return { ...el, active: true };
         });
-        console.log(results);
         commit('setContacts', results);
         commit('setPagination', {
           current: resetPagination ? 1 : state.pagination.current,
@@ -72,6 +90,9 @@ const actions = {
           total: response.data.count,
           showSizeChanger: false
         });
+        if (filtersAdvance == true) {
+          message.success("Filtros aplicados correctamente");
+        }
       } else {
         commit('setContacts', []);
         commit('resetPagination');

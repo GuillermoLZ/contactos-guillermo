@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs'
 interface Channel {
   id: number;
   name: string;
@@ -41,7 +42,17 @@ export interface Contact {
 
 export interface ContactFiltersBasic {
   search: string;
-  entity: string | null;
-  portfolio: number | null;
-  status: boolean | null;
+  entity: string;
+  portfolio: number | string;
+  status: boolean | string; 
+}
+
+export interface ContactFiltersAdvance {
+  managent: boolean | string;
+  group: number[];
+  result: number[];
+  dateinit: Dayjs | null;
+  dateend: Dayjs | null;
+  typeview: number | string;
+  users: string[];
 }
