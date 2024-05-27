@@ -1,19 +1,4 @@
 <template>
-  <div class="filter-description">
-    <div>
-      <span
-        >Gestiona los contactos de tus campañas. Puedes ver, editar información
-        y realizar acciones individuales como llamadas.
-      </span>
-      <a-typography-link href="https://antdv.com" target="_blank">
-        Click aquí
-      </a-typography-link>
-      <span> para conocer más.</span>
-    </div>
-    <div>
-      <span>Contactos encontrados: {{ pagination.total }}</span>
-    </div>
-  </div>
   <div class="filter">
     <a-input v-model:value="filtersBasic.search" placeholder="Buscar contacto">
       <template #prefix>
@@ -43,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, watch, ref, inject, Ref } from 'vue'
+  import { computed, watch, ref } from 'vue'
   import { SearchOutlined, FilterOutlined } from '@ant-design/icons-vue'
   import { useStore } from 'vuex'
   import { Contact } from '@/interfaces/contact'
@@ -53,7 +38,6 @@
   const store = useStore()
 
   const showFilterDrawerContacts = ref(false)
-  const pagination = computed(() => store.getters.getPagination)
   const filtersBasic = computed(() => store.getters.getFiltersBasic)
 
   const optionsEntities = ref<Select[]>([])
@@ -134,9 +118,5 @@
   }
   .filter .ant-select {
     width: 200px;
-  }
-  .filter-description {
-    display: flex;
-    justify-content: space-between;
   }
 </style>

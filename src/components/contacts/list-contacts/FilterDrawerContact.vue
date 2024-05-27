@@ -8,7 +8,7 @@
     @close="handleClose"
     width="480"
   >
-    <div v-if="filtersBasic.portfolio == ''">
+    <div v-if="filtersBasic.portfolio != ''">
       <p>
         Filtra tus contactos en base a sus gestiones realizadas. No olvides
         aplicar tus filtros para que se visualizen en la tabla.
@@ -147,13 +147,13 @@
         <a-button
           style="margin-right: 8px"
           @click="handleClear"
-          :disabled="filtersBasic.portfolio != ''"
+          :disabled="filtersBasic.portfolio == ''"
           >Limpiar</a-button
         >
         <a-button
           type="primary"
           @click="handleFilter"
-          :disabled="filtersBasic.portfolio != ''"
+          :disabled="filtersBasic.portfolio == ''"
           >Aplicar</a-button
         >
       </div>
@@ -167,7 +167,6 @@
   import { useStore } from 'vuex'
   import { Select } from '@/interfaces/general'
   import { Key } from 'ant-design-vue/es/_util/type'
-  import { paginationConfig } from 'ant-design-vue/es/pagination'
 
   defineProps({
     open: Boolean,

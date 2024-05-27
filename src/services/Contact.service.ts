@@ -1,4 +1,4 @@
-import { ContactFiltersBasic, ContactFiltersAdvance } from '@/interfaces/contact';
+import { ContactFiltersBasic, ContactFiltersAdvance, ContactForm } from '@/interfaces/contact';
 import { Pagination } from '@/interfaces/general';
 import axios from 'axios';
 
@@ -31,6 +31,18 @@ export async function fetchContactsFilters(filtersBasic: ContactFiltersBasic, fi
   
   const response = await axios.post(`https://cocachola.backend.scorecloud.dev/contacts/clients/?limit=${pageSize}&offset=${((current - 1) * pageSize)}`, 
     body,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+  return response;
+}
+
+export async function fetchCreateContact(contact: ContactForm) {
+  const response = await axios.post(`https://cocachola.backend.scorecloud.dev/contacts/clients/create/`, 
+  contact,
     {
       headers: {
         Authorization: `Bearer ${token}`

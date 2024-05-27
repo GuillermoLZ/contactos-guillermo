@@ -56,3 +56,16 @@ export interface ContactFiltersAdvance {
   typeview: number | string;
   users: string[];
 }
+
+export interface ContactForm {
+  first_name: string,
+  paternal_surname: string,
+  maternal_surname: string,
+  type_document: string,
+  document_number: string,
+  direction: string,
+  email: string,
+  code_phone: string,
+  phone: string,
+  portfolio: number,
+}
