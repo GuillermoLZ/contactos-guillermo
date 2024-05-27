@@ -21,7 +21,7 @@ export interface Contact {
   emails: string[];
   document_number: string;
   channels: Channel[];
-  queues: any[];
+  queues: string[];
   last_management_date: string | null;
   last_interaction_date: string | null;
   best_management_group_month: string | null;

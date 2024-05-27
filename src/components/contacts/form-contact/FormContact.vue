@@ -71,7 +71,7 @@
     currentStep.value--
   }
 
-  const createContact = async (portfolio: any) => {
+  const createContact = async (portfolio: number) => {
     Modal.confirm({
       title: `¿Estás seguro de crear el contacto?`,
       content: `Se creará el contacto ${formContact.value.first_name} ${formContact.value.paternal_surname}`,
