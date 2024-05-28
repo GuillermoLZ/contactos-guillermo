@@ -282,6 +282,7 @@
       resetPagination: true,
       filtersAdvance: true,
     })
+    handleClose();
   }
 
   watch(

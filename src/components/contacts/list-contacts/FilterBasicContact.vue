@@ -15,6 +15,7 @@
       v-model:value="filtersBasic.portfolio"
       :disabled="!filtersBasic.entity"
       :options="optionsCampaigns"
+      :loading="loadingCampaigns"
       @change="handleFilterContacts"
     >
     </a-select>
@@ -28,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, watch, ref } from 'vue'
+  import { computed, ref } from 'vue'
   import { SearchOutlined, FilterOutlined } from '@ant-design/icons-vue'
   import { useStore } from 'vuex'
   import { Contact } from '@/interfaces/contact'
@@ -40,28 +41,31 @@
   const showFilterDrawerContacts = ref(false)
   const filtersBasic = computed(() => store.getters.getFiltersBasic)
 
-  const optionsEntities = ref<Select[]>([])
-  const optionsCampaigns = ref<Select[]>([])
+  const optionsEntities = ref<Select[]>([
+    { value: '', label: 'Todas las empresas' },
+    { value: 'QA EIRL', label: 'QA EIRL' },
+    { value: 'Leña y Carbon', label: 'Leña y Carbon' },
+    { value: 'Footwear', label: 'Footwear' },
+    { value: 'ARGIE TEST', label: 'ARGIE TEST' },
+  ])
+  const optionsCampaigns = ref<Select[]>([
+    { value: '', label: 'Todas las campañas' },
+  ])
   const optionsStatus = ref<Select[]>([
     { value: '', label: 'Activos e Inactivos' },
     { value: true, label: 'Activos' },
     { value: false, label: 'Inactivos' },
   ])
 
-  const getEntities = (contacts: Contact[]) => {
-    let options: string[] = []
-    options = [...new Set(contacts.map((el: Contact) => el.entity_name))]
-    optionsEntities.value = [
-      { value: '', label: 'Todas las empresas' },
-      ...options.map((el) => ({ value: el, label: el })),
-    ]
-  }
+  const loadingCampaigns = ref(false);
 
   const handleChangeEntity = async () => {
+    loadingCampaigns.value = true;
+    await store.dispatch('fetchContacts', { resetPagination: true })
     const contacts: Contact[] = store.getters.getContacts
     // Obtiene valores unicos de campañas del listado de contactos
     const uniqueSet = new Set<string>()
-
+    filtersBasic.value.portfolio = '';
     for (const item of contacts) {
       let itemAux = {
         entity_name: item.entity_name,
@@ -77,10 +81,9 @@
     )
 
     // Filtro de campañas por entidad seleccionada
-    options = options.filter(
+    options = await options.filter(
       (el) => el.entity_name == filtersBasic.value.entity
     )
-    console.log(options)
 
     // Forma array con estructura de options para el select
     optionsCampaigns.value = [
@@ -90,7 +93,7 @@
         label: el.portfolio_name,
       })),
     ]
-    await store.dispatch('fetchContacts', { resetPagination: true })
+    loadingCampaigns.value = false;
   }
 
   const handleFilterContacts = async () => {
@@ -100,13 +103,6 @@
   const handleShowFilter = () => {
     showFilterDrawerContacts.value = true
   }
-
-  watch(
-    () => store.getters.getContacts,
-    (newValue) => {
-      getEntities(newValue)
-    }
-  )
 </script>
 <style scoped>
   .filter {

@@ -37,7 +37,7 @@
       <template v-else-if="column.key === 'action'">
         <span>
           <a-switch v-model:checked="record.active" size="small" />
-          <a-button type="link"><DeleteOutlined /></a-button>
+          <a-button type="link" @click="deleteContact(record)"><DeleteOutlined /></a-button>
         </span>
       </template>
     </template>
@@ -45,9 +45,12 @@
 </template>
 <script lang="ts" setup>
   import { DeleteOutlined } from '@ant-design/icons-vue'
-  import { onMounted, ref, computed } from 'vue'
+  import { onMounted, ref, computed, createVNode } from 'vue'
   import { Pagination } from '@/interfaces/general'
   import { useStore } from 'vuex'
+  import { Contact } from '@/interfaces/contact';
+  import { Modal, message } from 'ant-design-vue';
+  import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
 
   const store = useStore()
 
@@ -186,6 +189,20 @@
   const changePage = async (value: Pagination) => {
     store.commit('setPagination', value)
     await listContacts()
+  }
+
+  const deleteContact = (record: Contact) => {
+    Modal.confirm({
+      title: `¿Estás seguro de eliminar el contacto?`,
+      content: `Se eliminará el contacto ${record.full_name}`,
+      icon: createVNode(ExclamationCircleOutlined),
+      centered: true,
+      okText: `Aceptar`,
+      cancelText: `Cancelar`,
+      onOk: async () => {
+        message.success('Eliminado correctamente')
+      },
+    })
   }
 
   onMounted(async () => {

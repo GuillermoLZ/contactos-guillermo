@@ -71,7 +71,7 @@
     currentStep.value--
   }
 
-  const createContact = async (portfolio: number) => {
+  const createContact = async (portfolio: any) => {
     Modal.confirm({
       title: `¿Estás seguro de crear el contacto?`,
       content: `Se creará el contacto ${formContact.value.first_name} ${formContact.value.paternal_surname}`,
@@ -85,11 +85,10 @@
             portfolio: portfolio,
           }
           const response = await fetchCreateContact(contact)
-          if (response.status == 200) {
-            message.success('Se creó el contacto correctamente')
-            await store.dispatch('fetchContacts', { resetPagination: true })
-            closeModal()
-          }
+          console.log(response)
+          if (response.status == 200) message.success('Se creó el contacto correctamente')
+          closeModal()
+          await store.dispatch('fetchContacts', { resetPagination: true })
         } catch (error) {
           message.error('Ocurrió un error al crear el contacto')
           console.log(error)
