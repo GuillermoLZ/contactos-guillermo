@@ -12,12 +12,12 @@
         {{ record.code }}
       </template>
       <template v-if="column.key === 'full_name'">
-        <a>
+        <a @click="handleShowDetailsContact('Personal')">
           {{ record.full_name }}
         </a>
       </template>
       <template v-if="column.key === 'phones'">
-        <a>
+        <a @click="handleShowDetailsContact('Phone')">
           {{ countPhones(record.phones) }}
         </a>
       </template>
@@ -42,6 +42,7 @@
       </template>
     </template>
   </a-table>
+  <ContactDetailsDrawer v-model:open="showContactDetailsDrawer" :tabDefault="tabDefault" />
 </template>
 <script lang="ts" setup>
   import { DeleteOutlined } from '@ant-design/icons-vue'
@@ -51,6 +52,7 @@
   import { Contact } from '@/interfaces/contact';
   import { Modal, message } from 'ant-design-vue';
   import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
+  import ContactDetailsDrawer from '@/components/contacts/contact-details/ContacDetailsDrawer.vue'
 
   const store = useStore()
 
@@ -171,9 +173,12 @@
     },
   ]
 
+  const tabDefault = ref<string>('Personal');
+
   const data = computed(() => store.getters.getContacts)
   const pagination = computed(() => store.getters.getPagination)
   const loading = ref(false)
+  const showContactDetailsDrawer = ref(false)
 
   const countPhones = (phones: string[]) => {
     const count = phones.length
@@ -193,16 +198,21 @@
 
   const deleteContact = (record: Contact) => {
     Modal.confirm({
-      title: `¿Estás seguro de eliminar el contacto?`,
-      content: `Se eliminará el contacto ${record.full_name}`,
+      title: `¿Estás seguro de eliminar el contacto ${record.full_name}?`,
+      content: `Recuerda que ya no se visualizará este contacto en la tabla. Si deseas volver a visualizarlo, deberás agregarlo nuevamente a Score.`,
       icon: createVNode(ExclamationCircleOutlined),
       centered: true,
       okText: `Aceptar`,
       cancelText: `Cancelar`,
       onOk: async () => {
-        message.success('Eliminado correctamente')
+        message.success('Se ha eliminado correctamente')
       },
     })
+  }
+
+  const handleShowDetailsContact = (tab) => {
+    showContactDetailsDrawer.value = true
+    tabDefault.value = tab
   }
 
   onMounted(async () => {

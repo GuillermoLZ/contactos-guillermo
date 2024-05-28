@@ -13,16 +13,19 @@
 </template>
 
 <script lang="ts" setup>
-  import { defineProps } from 'vue'
-  import { useRoute } from 'vue-router'
+  import { defineProps, onMounted } from 'vue'
+  import { refreshToken } from '@/services/Contact.service';
 
-  const route = useRoute()
   defineProps({
     items: {
       type: Array as () => Array<any>,
       default: () => [],
     },
   })
+
+  onMounted(async () => {
+    await refreshToken();
+  });
 </script>
 
 <style scoped>
